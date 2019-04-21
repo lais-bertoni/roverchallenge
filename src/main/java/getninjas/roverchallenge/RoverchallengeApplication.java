@@ -1,13 +1,23 @@
 package getninjas.roverchallenge;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import getninjas.roverchallenge.util.EntryUtil;
+import getninjas.roverchallenge.vo.RoverChallenge;
 
-@SpringBootApplication
+import java.util.Scanner;
+
 public class RoverchallengeApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(RoverchallengeApplication.class, args);
-	}
+    public static void main(String[] args) {
 
+        String entryFilePath = "./src/main/resources/";
+
+        System.out.println("Insert your file name.");
+        Scanner scanner = new Scanner(System.in);
+
+        String fileName = scanner.nextLine();
+
+        RoverChallenge roverChallenge = EntryUtil.readEntryFile(entryFilePath + fileName);
+
+        System.out.println(roverChallenge);
+    }
 }
