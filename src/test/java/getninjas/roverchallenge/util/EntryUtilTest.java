@@ -3,10 +3,14 @@ package getninjas.roverchallenge.util;
 import getninjas.roverchallenge.vo.RoverChallenge;
 import getninjas.roverchallenge.vo.RoverCommand;
 import getninjas.roverchallenge.vo.RoverInfo;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.LinkedList;
 
 import static getninjas.roverchallenge.vo.RoverCommand.*;
@@ -16,6 +20,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 public class EntryUtilTest {
+
+    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+    private final PrintStream originalErr = System.err;
+
+    @Before
+    public void setUpStreams() {
+        System.setOut(new PrintStream(outContent));
+        System.setErr(new PrintStream(errContent));
+    }
+
+    @After
+    public void restoreStreams() {
+        System.setOut(originalOut);
+        System.setErr(originalErr);
+    }
 
     @Test
     public void validEntryFile() {
@@ -28,6 +49,61 @@ public class EntryUtilTest {
         assertPlateauGrid(roverChallenge);
 
         assertRovers(roverChallenge);
+    }
+
+    @Test
+    public void invalidEntryFilePath() {
+        final String entryFilePath = "./src/test/resources/valid_entry123.txt";
+
+        final RoverChallenge roverChallenge = EntryUtil.readEntryFile(entryFilePath);
+
+        assertThat(roverChallenge).isNull();
+
+        assertThat(errContent.toString()).isEqualTo("Invalid entry file path.\r\n");
+    }
+
+    @Test
+    public void invalidEntryFileContent() {
+        final String entryFilePath = "./src/test/resources/invalid_content_entry.txt";
+
+        final RoverChallenge roverChallenge = EntryUtil.readEntryFile(entryFilePath);
+
+        assertThat(roverChallenge).isNull();
+
+        assertThat(errContent.toString()).isEqualTo("Invalid entry file content.\r\n");
+    }
+
+    @Test
+    public void invalidEntryFileMissingInformation() {
+        final String entryFilePath = "./src/test/resources/invalid_missing_info_entry.txt";
+
+        final RoverChallenge roverChallenge = EntryUtil.readEntryFile(entryFilePath);
+
+        assertThat(roverChallenge).isNull();
+
+        assertThat(errContent.toString()).isEqualTo("Missing information in the entry file.\r\n");
+    }
+
+    @Test
+    public void invalidEntryInvalidRoverOrientation() {
+        final String entryFilePath = "./src/test/resources/invalid_rover_orientation_entry.txt";
+
+        final RoverChallenge roverChallenge = EntryUtil.readEntryFile(entryFilePath);
+
+        assertThat(roverChallenge).isNull();
+
+        assertThat(errContent.toString()).contains("Invalid orientation.");
+    }
+
+    @Test
+    public void invalidEntryInvalidRoverCommand() {
+        final String entryFilePath = "./src/test/resources/invalid_rover_command_entry.txt";
+
+        final RoverChallenge roverChallenge = EntryUtil.readEntryFile(entryFilePath);
+
+        assertThat(roverChallenge).isNull();
+
+        assertThat(errContent.toString()).contains("Invalid command.");
     }
 
     private void assertRovers(RoverChallenge roverChallenge) {
