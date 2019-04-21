@@ -1,6 +1,7 @@
 package getninjas.roverchallenge;
 
 import getninjas.roverchallenge.util.EntryUtil;
+import getninjas.roverchallenge.util.RoverCommandExecutor;
 import getninjas.roverchallenge.vo.RoverChallenge;
 
 import java.util.Scanner;
@@ -18,6 +19,8 @@ public class RoverchallengeApplication {
 
         RoverChallenge roverChallenge = EntryUtil.readEntryFile(entryFilePath + fileName);
 
-        System.out.println(roverChallenge);
+        if (roverChallenge != null) {
+            RoverCommandExecutor.executeCommands(roverChallenge);
+        }
     }
 }
